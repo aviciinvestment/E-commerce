@@ -1,23 +1,38 @@
 const mongoose = require("mongoose");
 
-const Users = new mongoose.Schema({
-  fullname: {
-    type: String,
-    required: true,
+const Users = new mongoose.Schema(
+  {
+    fullname: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      required: true,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false, // New signups must verify first
+    },
+    verificationToken: {
+      type: String,
+      default: null,
+    },
+    verificationTokenExpiry: {
+      type: Date,
+      default: null,
+    },
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: String,
-    required: true,
-  },
-});
+  { timestamps: true },
+);
 
 module.exports = mongoose.model("Users", Users);

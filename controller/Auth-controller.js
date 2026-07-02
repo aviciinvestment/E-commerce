@@ -8,7 +8,6 @@ const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const CreateAccount = async (req, res) => {
-  const { fullname, email, password, role } = req.body;
   try {
     const { fullname, email, password, role } = req.body;
 
@@ -19,25 +18,25 @@ const CreateAccount = async (req, res) => {
 
     // 2. Hash the raw password safely
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    // Token expires in 2 hours
+    const tokenExpiry = Date.now() + 3600000 * 2;
 
     // 3. Bundle user data into a token payload
-    const activationPayload = {
+    const newUser = await Users.create({
       fullname,
       email,
-      hashedPassword,
+      password: hashedPassword,
       role,
-    };
-    // 4. Sign the token with a short expiration window (e.g., 15-30 minutes)
-    const activationToken = jwt.sign(
-      activationPayload,
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "20m",
-      },
-    );
+      verificationToken,
+      verificationTokenExpiry: tokenExpiry,
+      isVerified: false, // Blocks login until true
+    });
 
     // 5. Append the token string directly into your callback URL query string
-    const confirmationLink = `http://localhost:3000/user_Auth/verify-email?token=${activationToken}`;
+    const confirmationLinks = `http://localhost:3000/user_Auth/verify-email?token=${verificationToken}&email=${email}`;
+    console.log(confirmationLinks);
 
     // 6. Send the payload securely using Resend
     await resend.emails.send({
@@ -47,7 +46,7 @@ const CreateAccount = async (req, res) => {
       html: `
                 <h2>Welcome to Our Platform, ${fullname}!</h2>
                 <p>Please click the button below to confirm your email and instantiate your account profile:</p>
-                <p><a href="${confirmationLink}" style="background-color: #007BFF; color: white; padding: 12px 24px; text-decoration: none; display: inline-block; border-radius: 5px; font-weight: bold;">Complete Registration</a></p>
+                <p><a href="${confirmationLinks}" style="background-color: #007BFF; color: white; padding: 12px 24px; text-decoration: none; display: inline-block; border-radius: 5px; font-weight: bold;">Complete Registration</a></p>
                 <p><strong>Security Notice:</strong> This activation link is state-encrypted and expires in 20 minutes.</p>
             `,
     });
@@ -60,59 +59,61 @@ const CreateAccount = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({
-      error: "Server encountered an issue initializing activation payload.",
+      error: "Server error during registration",
     });
   }
 };
 /////////////////////////////////////////////////////////////////////////////////////
 const Verify_email = async (req, res) => {
   try {
-    const { token } = req.query;
+    const { token, email } = req.query;
 
-    if (!token) {
-      return res
-        .status(400)
-        .json({ message: "Missing required registration activation token." });
-    }
-
-    // 1. Decode and verify signature integrity and token expiration automatically
-    let decodedPayload;
-    try {
-      decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (jwtError) {
-      // Catches TokenExpiredError or JsonWebTokenError (tampered signature)
-      return res.status(401).json({
+    // 1. Safety check: Ensure query params are actually present
+    if (!token || !email) {
+      return res.status(400).json({
         message:
-          "Activation link is invalid or has expired. Please sign up again.",
+          "Invalid request. Missing verification token or email address.",
       });
     }
 
-    // 2. Extract user parameters from verified token structural payload
-    const { fullname, email, hashedPassword, role } = decodedPayload;
+    // 2. Find user matching email and token
+    const user = await Users.findOne({ email, verificationToken: token });
 
-    // 3. Safeguard: Final collision check right before saving (handles race conditions)
-    const userExists = await Users.findOne({ email });
-    if (userExists)
-      return res
-        .status(400)
-        .json({ message: "This email was verified/registered already." });
+    console.log("Database result:", user);
+    console.log("Query parameters received:", req.query);
 
-    // 4. Create the final document inside the DB (Active by default, no unverified rows)
-    const finalizedUser = await Users.create({
-      fullname,
-      email,
-      password: hashedPassword, // Already hashed during signup phase
-      role,
-      isVerified: true,
-    });
+    // 3. CRITICAL FIX: Add this safety check before reading properties of 'user'
+    if (!user) {
+      return res.status(400).json({
+        message:
+          "Invalid or expired verification link. User account not found.",
+      });
+    }
 
-    // 5. Send an HTML success page or redirect directly to your login frontend client
-    res.status(201).json({ message: "login successful" });
+    // 4. Check token expiration safely now that 'user' is guaranteed to exist
+    if (Date.now() > user.verificationTokenExpiry) {
+      return res.status(400).json({
+        message: "Verification link has expired. Please register again.",
+      });
+    }
+
+    // 5. Update account verification status and clear tokens
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiry = undefined;
+    await user.save();
+
+    // 6. Return response
+    return res
+      .status(200)
+      .send(
+        "<h1>Email Verified Successfully!</h1><p>You can now close this window and log in.</p>",
+      );
   } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ error: "Internal system error committing account." });
+    console.error("Crash caught in Verify_email:", err);
+    return res.status(500).json({
+      error: "Internal system error committing account verification status.",
+    });
   }
 };
 
@@ -129,7 +130,12 @@ const Login = async (req, res) => {
       // Keep error messages vague for security reasons (don't reveal if email exists)
       return res.status(401).json({ message: "Invalid email or password." });
     }
-
+    // Inside your login route logic...
+    if (!user.isVerified) {
+      return res.status(403).json({
+        message: "Please verify your email address before logging in.",
+      });
+    }
     // 2. Compare incoming raw password against the stored password (hashedPassword)
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
