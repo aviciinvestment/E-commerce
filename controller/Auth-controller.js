@@ -149,7 +149,7 @@ const Login = async (req, res) => {
     );
 
     // 4. Return successful response along with user details
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
       message: "Logged in successfully!",
       token,
@@ -161,8 +161,94 @@ const Login = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ error: "Server error during authentication." });
+    return res
+      .status(500)
+      .json({ error: "Server error during authentication." });
   }
 };
 
-module.exports = { CreateAccount, Login, Verify_email };
+const Forgot_password = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const user = await Users.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    // Generate a unique token for password reset
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+
+    // Save the reset token and its expiry to the user document
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiry = resetTokenExpiry;
+    await user.save();
+
+    // Send the password reset email
+    const resetUrl = `http://localhost:3000/user_Auth/resetpassword?token=${resetToken}&email=${email}`;
+    console.log(resetUrl);
+    // Send the password reset email
+    await resend.emails.send({
+      from: "onboarding@resend.dev", // Replace with your production domain later
+      to: email,
+      subject: "Reset Your Account Password",
+      html: `
+                <h2>Reset Password, ${user.fullname}!</h2>
+                <p>Please click the button below to reset your password</p>
+                <p><a href="${resetUrl}" style="background-color: #007BFF; color: white; padding: 12px 24px; text-decoration: none; display: inline-block; border-radius: 5px; font-weight: bold;">Complete Registration</a></p>
+                <p><strong>Security Notice:</strong> This activation link is state-encrypted and expires in 20 minutes.</p>
+            `,
+    });
+    return res.status(200).json({ message: "Password reset email sent." });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: "Server error during authentication.", err });
+  }
+};
+
+const Reset_password = async (req, res) => {
+  try {
+    const { first_password, second_password } = req.body;
+    const { token, email } = req.query;
+
+    if (first_password !== second_password) {
+      return res
+        .status(404)
+        .json({ message: "password not the same check and try again" });
+    }
+    const user = await Users.findOne({ email, resetPasswordToken: token });
+
+    // 4. Check token expiration safely now that 'user' is guaranteed to exist
+    if (Date.now() > user.resetPasswordExpiry) {
+      return res.status(400).json({
+        message: "Verification link has expired. Please try again.",
+      });
+    }
+    const hashedPassword = await bcrypt.hash(first_password, 10);
+
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiry = undefined;
+    await user.save();
+
+    // 6. Return response
+    return res
+      .status(200)
+      .send(
+        "<h1>Users password successfully changed!</h1><p>You can now close this window and log in.</p>",
+      );
+  } catch (e) {
+    return res
+      .status(500)
+      .json({ error: "Server error during authentication.", e });
+  }
+};
+
+module.exports = {
+  CreateAccount,
+  Login,
+  Verify_email,
+  Forgot_password,
+  Reset_password,
+};

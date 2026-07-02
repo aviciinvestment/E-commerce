@@ -59,4 +59,49 @@ const validateLogin = (req, res, next) => {
   next();
 };
 
-module.exports = { validateAccountCreation, validateLogin };
+const forget_login = (req, res, next) => {
+  const schema = Joi.object({
+    email: Joi.string().trim().email().lowercase().required().messages({
+      "string.email": "Please enter a valid email address.",
+      "any.required": "Email is required.",
+    }),
+  });
+
+  const { error, value } = schema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({ errors: errorMessages });
+  }
+
+  req.body = value; // Inject sanitized data
+  next();
+};
+
+const reset_login = (req, res, next) => {
+  const schema = Joi.object({
+    first_password: Joi.string().required().messages({
+      "any.required": "Password is required.",
+    }),
+    second_password: Joi.string().required().messages({
+      "any.required": "Password is required.",
+    }),
+  });
+
+  const { error, value } = schema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({ errors: errorMessages });
+  }
+
+  req.body = value; // Inject sanitized data
+  next();
+};
+
+module.exports = {
+  validateAccountCreation,
+  validateLogin,
+  forget_login,
+  reset_login,
+};
