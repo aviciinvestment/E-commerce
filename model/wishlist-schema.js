@@ -1,17 +1,18 @@
 const mongoose = require("mongoose");
-
+require("../model/Products-schema");
+require("../model/Users-schema");
 const wishlistSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Users",
       required: true,
       unique: true, // One unique wishlist document per user account
     },
     products: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product", // Links directly to your Products-schema
+        ref: "Products", // Links directly to your Products-schema
       },
     ],
   },

@@ -52,7 +52,10 @@ const GetAllProducts = async (req, res) => {
     }
 
     // 2. INITIALIZE MONGOOSE QUERY
-    let mongooseQuery = Product.find(queryCondition).populate("name");
+    let mongooseQuery = Product.find(queryCondition).populate(
+      "categoryId",
+      "name",
+    );
 
     if (sort) {
       const sortBy = sort.split(",").join(" ");

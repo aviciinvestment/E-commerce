@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("../model/cartegory-schema");
 
 const Products = new mongoose.Schema(
   {

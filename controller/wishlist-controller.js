@@ -56,7 +56,10 @@ const GetWishlist = async (req, res) => {
     const { userId } = req.params;
 
     // Pull the user wishlist and automatically populate full details for all products inside it
-    const wishlist = await Wishlist.findOne({ userId });
+    const wishlist = await Wishlist.findOne({ userId }).populate({
+      path: "products",
+      select: "name price images description stockCount", // Fields you want to show on the UI
+    });
 
     if (!wishlist) {
       return res.status(200).json({ success: true, products: [] }); // Return empty array if no wishlist exists yet
