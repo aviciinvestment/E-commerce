@@ -6,6 +6,7 @@ const ProductRoute = require("./routes/Product-route");
 const WishlistRoute = require("./routes/Wishlist-route");
 const User = require("./database/Users");
 const CartRoute = require("./routes/cart-route");
+const AddressRoute = require("./routes/address-routes");
 
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use("/user_Auth", AuthRoute);
 app.use("/products", ProductRoute);
 app.use("/wishlist", WishlistRoute);
 app.use("/cart", CartRoute);
+app.use("/address", AddressRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
