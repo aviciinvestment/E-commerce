@@ -27,6 +27,141 @@ const CreateNewProduct = async (req, res) => {
   }
 };
 
+// 22. GET ALL PRODUCTS
+// Includes optional search filtering and category population
+const GetAllProducts = async (req, res) => {
+  try {
+    // 1. Destructure all query parameters from the URL
+    const { search, category, minPrice, maxPrice, sort, page, limit } =
+      req.query;
+    // Base query conditions: only fetch active products
+    let queryCondition = { isActive: true };
+
+    if (search) {
+      queryCondition.$text = { $search: search };
+    }
+    // Filter by Category ID
+    if (category) {
+      queryCondition.categoryId = category;
+    }
+
+    if (minPrice || maxPrice) {
+      queryCondition.price = {};
+      if (minPrice) queryCondition.price.$gte = Number(minPrice); // Greater than or equal to
+      if (maxPrice) queryCondition.price.$lte = Number(maxPrice); // Less than or equal to
+    }
+
+    // 2. INITIALIZE MONGOOSE QUERY
+    let mongooseQuery = Product.find(queryCondition).populate("name");
+
+    if (sort) {
+      const sortBy = sort.split(",").join(" ");
+      mongooseQuery = mongooseQuery.sort(sortBy);
+    } else {
+      mongooseQuery = mongooseQuery.sort("-createdAt"); // Default sort: newest items first
+    }
+
+    // 28. PAGINATION LOGIC
+    const currentPage = parseInt(page, 10) || 1; // Default to page 1
+    const resultsPerPage = parseInt(limit, 10) || 10; // Default to 10 products per page
+    const skipAmount = (currentPage - 1) * resultsPerPage;
+
+    // Count total matching items before slicing with pagination (needed for front-end pagination bars)
+    const totalMatchingProducts = await Product.countDocuments(queryCondition);
+
+    // Execute the final built query string parameters
+    const products = await mongooseQuery.skip(skipAmount).limit(resultsPerPage);
+    // Return the items along with structured pagination metadata info
+    return res.status(200).json({
+      success: true,
+      count: products.length,
+      pagination: {
+        totalItems: totalMatchingProducts,
+        totalPages: Math.ceil(totalMatchingProducts / resultsPerPage),
+        currentPage: currentPage,
+        limit: resultsPerPage,
+      },
+      data: products,
+    });
+    if (req.query == {}) {
+      const products = await Product.find({ isActive: true });
+      return res.status(200).json(products);
+    }
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// 21. GET SINGLE PRODUCT BY ID
+const GetSingleProduct = async (req, res) => {
+  try {
+    const product = await Product.findOne({
+      _id: req.params.id,
+      isActive: true,
+    }).populate("name");
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 19. UPDATE PRODUCT (Handles text, optional new image upload, and variants)
+const UpdateProduct = async (req, res) => {
+  try {
+    const updateData = { ...req.body };
+    console.log(updateData);
+
+    // If a new image file is uploaded via Postman, add it to the images array
+    if (req.file) {
+      updateData.$push = { images: req.file.path };
+    }
+    console.log(updateData);
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { returnDocument: "after" }, // returns the modified document instead of original
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Product updated successfully!", updatedProduct });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 20. DELETE PRODUCT (Soft-Delete Method)
+// We change isActive to false instead of removing it, preserving historical order logs
+const DeleteProduct = async (req, res) => {
+  try {
+    const deletedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      { isActive: false },
+      { new: true },
+    );
+
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({ message: "Product deleted safely!" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   CreateNewProduct,
+  GetAllProducts,
+  GetSingleProduct,
+  UpdateProduct,
+  DeleteProduct,
 };
