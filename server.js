@@ -9,6 +9,8 @@ const CartRoute = require("./routes/cart-route");
 const AddressRoute = require("./routes/address-routes");
 const CheckoutRoute = require("./routes/checkout-route");
 const CouponRoute = require("./routes/coupon-roue");
+const OrderRoute = require("./routes/order-route");
+const PaymentRoute = require("./routes/payment-route");
 
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
@@ -20,6 +22,8 @@ app.use("/cart", CartRoute);
 app.use("/address", AddressRoute);
 app.use("/checkout", CheckoutRoute);
 app.use("/coupon", CouponRoute);
+app.use("/order", OrderRoute);
+app.use("/payment", PaymentRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
