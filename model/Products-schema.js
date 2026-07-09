@@ -3,6 +3,13 @@ require("../model/cartegory-schema");
 
 const Products = new mongoose.Schema(
   {
+    sku: {
+      type: String,
+      required: true,
+      unique: true,
+      uppercase: true,
+      trim: true, // ⚡ 64. SKU Management
+    },
     name: {
       type: String,
       required: true,
@@ -29,6 +36,7 @@ const Products = new mongoose.Schema(
       type: String,
       required: false,
     },
+    lowStockThreshold: { type: Number, default: 10 },
     isActive: {
       type: Boolean,
       default: true,

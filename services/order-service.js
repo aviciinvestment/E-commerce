@@ -1,6 +1,7 @@
 const Order = require("../model/order-schema");
 const Product = require("../model/Products-schema");
 const Cart = require("../model/cart-schema");
+const inventoryService = require("./inventory-service");
 
 // 48 & 49. CONFIRM PAYMENT & CREATE/FINALIZE ORDER
 const finalizeOrderPayment = async (orderId, paymentReference) => {
@@ -10,21 +11,8 @@ const finalizeOrderPayment = async (orderId, paymentReference) => {
 
   // Loop through items and deduct physical stock count quantities atomics
   for (const item of order.items) {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      item.productId,
-      { $inc: { stockCount: -item.quantity } }, // Subtracts bought quantity
-      { returnDocument: "after" },
-    );
-
-    if (updatedProduct.stockCount < 0) {
-      // Safety rollback if a race condition caused stock to drop below zero
-      await Product.findByIdAndUpdate(item.productId, {
-        $inc: { stockCount: item.quantity },
-      });
-      throw new Error(
-        `Inventory depletion crash. '${item.name}' ran out of stock mid-transaction.`,
-      );
-    }
+    // ⚡ Seamless cross-module interaction! Reduces stock and runs low warnings automatically
+    await inventoryService.deductStock(item.productId, item.quantity);
   }
 
   // Update order confirmation parameters
