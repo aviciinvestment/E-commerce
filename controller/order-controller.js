@@ -1,11 +1,16 @@
 const Order = require("../model/order-schema");
 const orderService = require("../services/order-service");
 
+
+
+
+
 // 48. CONFIRM AND PLACED ORDER AFTER PAYMENT SUCCESS
 const ConfirmPaymentAndPlaceOrder = async (req, res) => {
   try {
-    const { orderId, paymentReference } = req.body;
+    const { userId,orderId, paymentReference } = req.body;
     const completedOrder = await orderService.finalizeOrderPayment(
+      userId,
       orderId,
       paymentReference,
     );

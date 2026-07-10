@@ -26,7 +26,9 @@ const Users = new mongoose.Schema(
     },
     role: {
       type: String,
-      required: true,
+      enum: ['customer', 'admin', 'super-admin'],
+      default: 'customer'
+
     },
     addresses: [addressSchema], // ⚡ Embedded sub-document array,
     isVerified: {

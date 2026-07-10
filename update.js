@@ -13,18 +13,17 @@ mongoose
 
     for (let product of products) {
       // 2. Only update if the product doesn't already have an SKU
-      if (!product.sku) {
+      if (!product.vendorId) {
         counter++;
 
         // Generate a temporary fallback SKU using the product name or ID
-        const cleanName = product.name.replace(/\s+/g, "-").toUpperCase();
-        product.sku = `SKU-MIGRATE-${cleanName}-${counter}`;
 
-        // Add the low stock threshold default value
-        product.lowStockThreshold = 10;
+        product.vendorId = `6a50f48c41fb8f7447b49b1e`;
+
+
 
         await product.save();
-        console.log(`Updated: ${product.name} -> SKU: ${product.sku}`);
+        console.log(`Updated:  ${product.vendorId}`);
       }
     }
 

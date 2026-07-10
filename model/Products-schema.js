@@ -1,8 +1,14 @@
 const mongoose = require("mongoose");
 require("../model/cartegory-schema");
+require("../model/vendors-schema");
 
 const Products = new mongoose.Schema(
   {
+  vendorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Vendor',
+    required: [true, 'A product must belong to a verified marketplace vendor']
+  },
     sku: {
       type: String,
       required: true,

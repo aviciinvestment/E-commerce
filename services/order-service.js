@@ -2,10 +2,15 @@ const Order = require("../model/order-schema");
 const Product = require("../model/Products-schema");
 const Cart = require("../model/cart-schema");
 const inventoryService = require("./inventory-service");
+const notificationService = require('../services/notification-service');
+const User = require('../model/Users-schema')
+const vendorService = require('./vendor-service');
+
 
 // 48 & 49. CONFIRM PAYMENT & CREATE/FINALIZE ORDER
-const finalizeOrderPayment = async (orderId, paymentReference) => {
+const finalizeOrderPayment = async (userId,orderId, paymentReference) => {
   const order = await Order.findById(orderId);
+  const user = await User.findById(userId);
   if (!order) throw new Error("Order transaction not found.");
   if (order.status === "Paid") return order; // Prevent double inventory deduction
 
@@ -15,10 +20,24 @@ const finalizeOrderPayment = async (orderId, paymentReference) => {
     await inventoryService.deductStock(item.productId, item.quantity);
   }
 
+
+
+
+
   // Update order confirmation parameters
   order.status = "Paid";
   order.paymentReference = paymentReference;
   await order.save();
+
+  // ⚡ Trigger commission payouts automatically for marketplace vendors!
+await vendorService.processOrderCommissionsSplit(order); 
+
+  // Inside your Order Confirmation Controller...
+const textMessage = `Order Confirmed! Your package reference is #${order._id}. Total Paid: $${order.grandTotal}.`;
+const invoiceHTML = `<h3>Thank you for your payment!</h3><p>Order ID: ${order._id}</p>`;
+
+notificationService.sendSMS("+2347067424246", textMessage);
+notificationService.sendEmail(user.email, "Your Purchase Invoice Receipt", invoiceHTML);
 
   // Clear out the user's shopping cart since the transaction is finished
   await Cart.findOneAndDelete({ userId: order.userId });

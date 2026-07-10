@@ -13,6 +13,8 @@ const OrderRoute = require("./routes/order-route");
 const PaymentRoute = require("./routes/payment-route");
 const InventoryRoute = require("./routes/inventory-route");
 const ReviewRoute = require("./routes/review-route");
+const AdminRoute = require("./routes/admn-route")
+const VendorRoute = require("./routes/vendors-route.js")
 
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
@@ -28,6 +30,8 @@ app.use("/order", OrderRoute);
 app.use("/payment", PaymentRoute);
 app.use("/inventory", InventoryRoute);
 app.use("/review", ReviewRoute);
+app.use("/admin", AdminRoute)
+app.use("/vendor", VendorRoute)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
