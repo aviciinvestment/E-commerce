@@ -44,7 +44,7 @@ const Users = new mongoose.Schema(
       default: null,
     },
     verificationToken: {
-      type: Date,
+      type: String,
       default: null,
     },
     resetPasswordExpiry: {
