@@ -185,7 +185,7 @@ const Forgot_password = async (req, res) => {
     await user.save();
 
     // Send the password reset email
-    const resetUrl = `http://localhost:3000/user_Auth/resetpassword?token=${resetToken}&email=${email}`;
+    const resetUrl = `https://e-commerce-backend-9wqm.onrender.com/user_Auth/resetpassword?token=${resetToken}&email=${email}`;
     console.log(resetUrl);
     // Send the password reset email
     await resend.emails.send({
