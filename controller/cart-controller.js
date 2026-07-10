@@ -1,4 +1,4 @@
-const Cart = require("../model/Cart-schema");
+const Cart = require("../model/cart-schema");
 const Product = require("../model/Products-schema");
 require("../model/Products-schema");
 // Reusable math utility (36. Cart Total Calculation)
