@@ -15,7 +15,7 @@ const {
 const router = require("express").Router();
 
 router.post("/createAccount", validateAccountCreation, CreateAccount);
-router.get("/verifyemail", Verify_email);
+router.get("/verify-email", Verify_email);
 router.post("/login", validateLogin, Login);
 router.post("/forgotpassword", forget_login, Forgot_password);
 router.post("/resetpassword", reset_login, Reset_password);
