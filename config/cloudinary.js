@@ -14,9 +14,16 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "ecommerce_products", // The folder name inside your Cloudinary account
-    allowed_formats: ["jpg", "png", "jpeg", "webp"],
-    transformation: [{ width: 800, height: 800, crop: "limit" }], // Optional: resizes images automatically
+    // folder: "ecommerce_products", // The folder name inside your Cloudinary account
+    // allowed_formats: ["jpg", "png", "jpeg", "webp"],
+    // transformation: [{ width: 800, height: 800, crop: "limit" }], // Optional: resizes images automatically
+     folder: 'ecommerce_products',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    // ⚡ 90. IMAGE OPTIMIZATION: On-the-fly resizing and compression transformations
+    transformation: [
+      { width: 600, height: 600, crop: 'fill', gravity: 'auto' }, // Standard crop size
+      { quality: 'auto', fetch_format: 'auto' } // Auto-compresses data weight and converts to modern .webp format
+    ]
   },
 });
 

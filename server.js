@@ -15,8 +15,13 @@ const InventoryRoute = require("./routes/inventory-route");
 const ReviewRoute = require("./routes/review-route");
 const AdminRoute = require("./routes/admn-route")
 const VendorRoute = require("./routes/vendors-route.js")
-
+const { globalRateLimiter } = require('./middleware/rate-limiter');
 const PORT = process.env.PORT || 3000;
+
+
+
+// Protect all backend entry endpoints against brute-force attacks
+app.use('/api', globalRateLimiter); 
 app.use(express.json());
 User();
 app.use("/user_Auth", AuthRoute);
