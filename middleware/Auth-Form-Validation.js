@@ -16,8 +16,8 @@ const validateAccountCreation = (req, res, next) => {
       }),
 
     role: Joi.string()
-      .valid("user", "admin", "manager") // Define your allowed roles
-      .default("user"),
+      .valid("customer", "admin", "super-admin") // Define your allowed roles
+      .default("customer"),
   });
 
   const { error, value } = schema.validate(req.body, { abortEarly: false });
