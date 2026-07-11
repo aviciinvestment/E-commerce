@@ -1,5 +1,7 @@
 const express = require("express");
 require("dotenv").config();
+
+const cors = require("cors"); // ⚡ Import CORS middleware
 const app = express();
 const AuthRoute = require("./routes/Auth-route");
 const ProductRoute = require("./routes/Product-route");
@@ -13,15 +15,22 @@ const OrderRoute = require("./routes/order-route");
 const PaymentRoute = require("./routes/payment-route");
 const InventoryRoute = require("./routes/inventory-route");
 const ReviewRoute = require("./routes/review-route");
-const AdminRoute = require("./routes/admn-route")
-const VendorRoute = require("./routes/vendors-route.js")
-const { globalRateLimiter } = require('./middleware/rate-limiter');
+const AdminRoute = require("./routes/admn-route");
+const VendorRoute = require("./routes/vendors-route.js");
+const { globalRateLimiter } = require("./middleware/rate-limiter");
 const PORT = process.env.PORT || 3000;
 
-
+// ⚡ Allow incoming network requests from your React development server
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://vercel.app"], // Add your local and production frontend URLs
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }),
+);
 
 // Protect all backend entry endpoints against brute-force attacks
-app.use('/api', globalRateLimiter); 
+app.use("/api", globalRateLimiter);
 app.use(express.json());
 User();
 app.use("/user_Auth", AuthRoute);
@@ -35,8 +44,8 @@ app.use("/order", OrderRoute);
 app.use("/payment", PaymentRoute);
 app.use("/inventory", InventoryRoute);
 app.use("/review", ReviewRoute);
-app.use("/admin", AdminRoute)
-app.use("/vendor", VendorRoute)
+app.use("/admin", AdminRoute);
+app.use("/vendor", VendorRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
