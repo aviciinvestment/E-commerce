@@ -35,7 +35,8 @@ const CreateAccount = async (req, res) => {
     });
 
     // 5. Append the token string directly into your callback URL query string
-    const confirmationLinks = `https://e-commerce-backend-9wqm.onrender.com/user_Auth/verify-email?token=${verificationToken}&email=${email}`;
+    const confirmationLinks = `http://localhost:5173/verify-email?token=${verificationToken}&email=${email}`;
+    //const confirmationLinks = `https://e-commerce-backend-9wqm.onrender.com/user_Auth/verify-email?token=${verificationToken}&email=${email}`;
     console.log(confirmationLinks);
 
     // 6. Send the payload securely using Resend
