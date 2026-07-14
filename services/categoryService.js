@@ -1,4 +1,4 @@
-const Category = require("../model/Category-schema");
+const Category = require("../model/cartegory-schema");
 
 class CategoryService {
   // 13. CREATE CATEGORY

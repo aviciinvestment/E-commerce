@@ -5,7 +5,7 @@ const {
   UpdateExistingCategory,
   RemoveCategory,
   FetchAllCategories,
-} = require("../controllers/categoryController");
+} = require("../controller/categoryController");
 
 // Public route that your frontend home controller calls
 router.get("/categories", FetchAllCategories);
