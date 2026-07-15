@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3000;
 // ⚡ Allow incoming network requests from your React development server
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://vercel.app"], // Add your local and production frontend URLs
+    origin: ["http://localhost:5173", "https://victorycommerce.vercel.app"], // Add your local and production frontend URLs
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
