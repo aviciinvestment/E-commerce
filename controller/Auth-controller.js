@@ -35,7 +35,7 @@ const CreateAccount = async (req, res) => {
     });
 
     // 5. Append the token string directly into your callback URL query string
-    const confirmationLinks = `http://localhost:5173/verify-email?token=${verificationToken}&email=${email}`;
+    const confirmationLinks = `https://victorycommerce.vercel.app/verify-email?token=${verificationToken}&email=${email}`;
     //const confirmationLinks = `https://e-commerce-backend-9wqm.onrender.com/user_Auth/verify-email?token=${verificationToken}&email=${email}`;
     console.log(confirmationLinks);
 
@@ -187,7 +187,7 @@ const Forgot_password = async (req, res) => {
 
     // Send the password reset email
     //const resetUrl = `https://e-commerce-backend-9wqm.onrender.com/user_Auth/resetpassword?token=${resetToken}&email=${email}`;
-    const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}&email=${email}`;
+    const resetUrl = `https://victorycommerce.vercel.app/reset-password?token=${resetToken}&email=${email}`;
     console.log(resetUrl);
     // Send the password reset email
     await resend.emails.send({
