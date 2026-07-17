@@ -8,12 +8,10 @@ const UpdateProfileInfo = async (req, res) => {
     const { fullname, email } = req.body;
 
     if (!fullname && !email) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Please provide parameters to update.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Please provide parameters to update.",
+      });
     }
 
     const updatedUser = await profileService.updateProfile(
@@ -40,12 +38,10 @@ const ChangeUserPassword = async (req, res) => {
     const { current_password, new_password } = req.body;
 
     if (!current_password || !new_password) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Missing current or new password values.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Missing current or new password values.",
+      });
     }
 
     await profileService.changePassword(userId, current_password, new_password);
