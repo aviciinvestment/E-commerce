@@ -8,7 +8,7 @@ const {
 const {
   UpdateProfileInfo,
   ChangeUserPassword,
-} = require("../controllers/profileController");
+} = require("../controller/profileController");
 const {
   validateAccountCreation,
   validateLogin,
