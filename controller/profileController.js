@@ -37,7 +37,7 @@ const ChangeUserPassword = async (req, res) => {
     const userId = req.user.id || req.user._id;
     const { currentPassword, newPassword } = req.body;
 
-    if (!current_password || !new_password) {
+    if (!currentPassword || !newPassword) {
       return res.status(400).json({
         success: false,
         message: "Missing current or new password values.",
