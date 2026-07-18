@@ -35,7 +35,7 @@ const UpdateProfileInfo = async (req, res) => {
 const ChangeUserPassword = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
-    const { current_password, new_password } = req.body;
+    const { currentPassword, newPassword } = req.body;
 
     if (!current_password || !new_password) {
       return res.status(400).json({
@@ -44,7 +44,7 @@ const ChangeUserPassword = async (req, res) => {
       });
     }
 
-    await profileService.changePassword(userId, current_password, new_password);
+    await profileService.changePassword(userId, currentPassword, newPassword);
 
     return res.status(200).json({
       success: true,

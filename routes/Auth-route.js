@@ -20,7 +20,7 @@ const router = require("express").Router();
 
 // Mount the endpoints securely:
 router.put("/profile/update", verifyToken, UpdateProfileInfo);
-router.post("/change-password", verifyToken, ChangeUserPassword);
+router.put("/change-password", verifyToken, ChangeUserPassword);
 
 router.post("/createAccount", validateAccountCreation, CreateAccount);
 router.get("/verify-email", Verify_email);
