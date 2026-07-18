@@ -58,17 +58,6 @@ const UsersSchema = new mongoose.Schema(
 
 // 3. SECURE MIDDLEWARE: AUTOMATED CRYPTOGRAPHIC BCRYPT PASSCODE HASHING HOOK
 // Crucial: This MUST sit directly above the mongoose.model definition step!
-UsersSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
 
 // 4. COMPILE AND EXPORT MODEL MATRIX FOR MIDDLEWARE INJECTION
 module.exports = mongoose.model("Users", UsersSchema);
