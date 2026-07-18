@@ -42,6 +42,8 @@ class ProfileService {
       throw new Error("The current password you typed is incorrect.");
 
     // Update the password property. The schema pre-save hook will hash it automatically!
+    const salt = await bcrypt.genSalt(10);
+    newPassword = await bcrypt.hash(newPassword, salt);
     user.password = newPassword;
     await user.save();
     return true;
