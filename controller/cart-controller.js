@@ -1,6 +1,7 @@
 const Cart = require("../model/cart-schema");
 const Product = require("../model/Products-schema");
 require("../model/Products-schema");
+
 // Reusable math utility (36. Cart Total Calculation)
 const calculateCartTotals = (cart) => {
   let overallTotal = 0;
@@ -10,6 +11,14 @@ const calculateCartTotals = (cart) => {
   });
   cart.cartTotal = Number(overallTotal.toFixed(2));
   return cart;
+};
+
+// Shared helper so every mutation returns the same populated shape as GetCart
+const populateCart = async (cart) => {
+  return cart.populate({
+    path: "items.productId",
+    select: "name price images description",
+  });
 };
 
 // 32. ADD TO CART
@@ -50,9 +59,12 @@ const AddToCart = async (req, res) => {
       });
     }
 
-    // Recompute total calculations automatically
+    // Recompute total calculations automatically (uses raw ObjectId — fine, math untouched)
     cart = calculateCartTotals(cart);
     await cart.save();
+
+    // Populate AFTER save, so the totals above are computed before productId is swapped for the full object
+    cart = await populateCart(cart);
 
     return res
       .status(200)
@@ -96,6 +108,8 @@ const UpdateQuantity = async (req, res) => {
     cart = calculateCartTotals(cart);
 
     await cart.save();
+    cart = await populateCart(cart);
+
     return res
       .status(200)
       .json({ success: true, message: "Cart quantity adjusted", data: cart });
@@ -124,6 +138,7 @@ const RemoveFromCart = async (req, res) => {
     // Recalculate totals after dropping the asset
     cart = calculateCartTotals(cart);
     await cart.save();
+    cart = await populateCart(cart);
 
     return res.status(200).json({
       success: true,
