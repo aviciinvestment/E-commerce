@@ -1,4 +1,36 @@
+const Users = require("../model/Users-schema");
 const profileService = require("../services/profileService");
+
+// Get Profile Controller Handler
+const GetProfile = async (req, res) => {
+  try {
+    // Extracted securely from your login token verify middleware wrapper!
+    const userId = req.user.id || req.user._id;
+
+    const user = await Users.findById(userId).select(
+      "fullname email role createdAt",
+    );
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User profile not found." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
 
 // Update Info Controller Handler
 const UpdateProfileInfo = async (req, res) => {
@@ -56,4 +88,4 @@ const ChangeUserPassword = async (req, res) => {
   }
 };
 
-module.exports = { UpdateProfileInfo, ChangeUserPassword };
+module.exports = { GetProfile, UpdateProfileInfo, ChangeUserPassword };

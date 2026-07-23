@@ -6,6 +6,7 @@ const {
   Reset_password,
 } = require("../controller/Auth-controller");
 const {
+  GetProfile,
   UpdateProfileInfo,
   ChangeUserPassword,
 } = require("../controller/profileController");
@@ -19,6 +20,7 @@ const { verifyToken } = require("../middleware/authMiddleware");
 const router = require("express").Router();
 
 // Mount the endpoints securely:
+router.get("/profile", verifyToken, GetProfile);
 router.put("/profile/update", verifyToken, UpdateProfileInfo);
 router.put("/change-password", verifyToken, ChangeUserPassword);
 
