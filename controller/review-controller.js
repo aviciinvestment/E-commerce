@@ -59,7 +59,7 @@ const GetProductReviews = async (req, res) => {
   try {
     const { productId } = req.params;
     const reviews = await Review.find({ productId })
-      .populate("userId", "username")
+      .populate("userId", "fullname")
       .sort("-createdAt");
     return res
       .status(200)
