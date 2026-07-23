@@ -4,7 +4,8 @@ require("dotenv").config();
 class PaymentService {
   async initializeTransaction(gateway, order, userEmail) {
     const amountInKoboOrMinor = Math.round(order.grandTotal * 100);
-    const callbackUrl = `http://localhost:3000/checkout/success`;
+    // const callbackUrl = `http://localhost:5173/checkout/success`;
+    const callbackUrl = `http://victorycommerce.vercel.app/checkout/success`;
 
     // A standard browser signature string to bypass Cloudflare/Firewall blocks
     const fallbackUserAgent =
