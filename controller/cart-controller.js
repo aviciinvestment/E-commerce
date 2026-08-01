@@ -175,4 +175,78 @@ const GetCart = async (req, res) => {
   }
 };
 
-module.exports = { AddToCart, RemoveFromCart, UpdateQuantity, GetCart };
+// 37. SYNC GUEST CART
+const SyncCart = async (req, res) => {
+  try {
+    // Supports either extracting from JWT middleware or passing it in the body directly
+    const userId = req.user?.id || req.user?._id || req.body.userId;
+    const { localItems } = req.body;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "User ID is required for sync" });
+    }
+
+    if (!localItems || !Array.isArray(localItems) || localItems.length === 0) {
+      return res
+        .status(200)
+        .json({ success: true, message: "No items to sync" });
+    }
+
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = new Cart({ userId, items: [], cartTotal: 0 });
+    }
+
+    // Secure approach: query the database for all items in the guest cart
+    // to ensure they are still active and to grab their true server-side prices
+    const productIds = localItems.map((item) => item.productId);
+    const products = await Product.find({
+      _id: { $in: productIds },
+      isActive: true,
+    });
+
+    localItems.forEach((localItem) => {
+      const product = products.find(
+        (p) => p._id.toString() === localItem.productId,
+      );
+      if (!product) return; // Skip items that were deleted or deactivated
+
+      const existingIndex = cart.items.findIndex(
+        (item) => item.productId.toString() === localItem.productId,
+      );
+
+      if (existingIndex > -1) {
+        cart.items[existingIndex].quantity += localItem.quantity;
+      } else {
+        cart.items.push({
+          productId: product._id,
+          quantity: localItem.quantity,
+          pricePerItem: product.price,
+          lineTotal: product.price * localItem.quantity,
+        });
+      }
+    });
+
+    cart = calculateCartTotals(cart);
+    await cart.save();
+    cart = await populateCart(cart);
+
+    return res.status(200).json({
+      success: true,
+      message: "Guest cart synced successfully",
+      data: cart,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+module.exports = {
+  AddToCart,
+  RemoveFromCart,
+  UpdateQuantity,
+  GetCart,
+  SyncCart,
+};
