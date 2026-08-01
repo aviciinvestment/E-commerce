@@ -8,6 +8,10 @@ const {
   ModerateReviewForceDelete,
   AdminReviewVendor,
   AdminApprovePayout,
+  FetchAllUsers,
+  FetchAllOrders,
+  FetchAllVendors,
+  FetchAllReviews,
 } = require("../controller/admin-controller");
 
 // ⚡ ALL ADMIN ASSIGNMENT PATHS PROTECTED BY RBAC MIDDLEWARE GATEKEEPERS
@@ -40,6 +44,27 @@ router.put(
   "/admin/vendors/payout-approve",
   authorizeRoles("super-admin"),
   AdminApprovePayout,
+);
+// ⚡ DATA FETCHING ROUTES
+router.get(
+  "/admin/users",
+  authorizeRoles("admin", "super-admin"),
+  FetchAllUsers,
+);
+router.get(
+  "/admin/orders",
+  authorizeRoles("admin", "super-admin"),
+  FetchAllOrders,
+);
+router.get(
+  "/admin/vendors",
+  authorizeRoles("admin", "super-admin"),
+  FetchAllVendors,
+);
+router.get(
+  "/admin/reviews",
+  authorizeRoles("admin", "super-admin"),
+  FetchAllReviews,
 );
 
 module.exports = router;
