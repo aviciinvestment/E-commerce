@@ -13,7 +13,8 @@ const {
 // ⚡ ALL ADMIN ASSIGNMENT PATHS PROTECTED BY RBAC MIDDLEWARE GATEKEEPERS
 router.get(
   "/admin/analytics",
-  /*authorizeRoles('admin', 'super-admin'),*/ FetchDashboardAnalytics,
+  authorizeRoles("admin", "super-admin"),
+  FetchDashboardAnalytics,
 );
 router.put(
   "/admin/users/status",
