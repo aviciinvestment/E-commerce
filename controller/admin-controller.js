@@ -89,45 +89,45 @@ const AdminApprovePayout = async (req, res) => {
   } catch (error) {
     return res.status(400).json({ success: false, error: error.message });
   }
-  // FETCH ALL USERS
-  const FetchAllUsers = async (req, res) => {
-    try {
-      const users = await adminService.getPlatformUsers();
-      return res.status(200).json({ success: true, data: users });
-    } catch (error) {
-      return res.status(500).json({ success: false, error: error.message });
-    }
-  };
+};
+// FETCH ALL USERS
+const FetchAllUsers = async (req, res) => {
+  try {
+    const users = await adminService.getPlatformUsers();
+    return res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
 
-  // FETCH ALL ORDERS
-  const FetchAllOrders = async (req, res) => {
-    try {
-      const orders = await adminService.getPlatformOrders();
-      return res.status(200).json({ success: true, data: orders });
-    } catch (error) {
-      return res.status(500).json({ success: false, error: error.message });
-    }
-  };
+// FETCH ALL ORDERS
+const FetchAllOrders = async (req, res) => {
+  try {
+    const orders = await adminService.getPlatformOrders();
+    return res.status(200).json({ success: true, data: orders });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
 
-  // FETCH ALL VENDORS
-  const FetchAllVendors = async (req, res) => {
-    try {
-      const vendors = await adminService.getPlatformVendors();
-      return res.status(200).json({ success: true, data: vendors });
-    } catch (error) {
-      return res.status(500).json({ success: false, error: error.message });
-    }
-  };
+// FETCH ALL VENDORS
+const FetchAllVendors = async (req, res) => {
+  try {
+    const vendors = await adminService.getPlatformVendors();
+    return res.status(200).json({ success: true, data: vendors });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+};
 
-  // FETCH ALL REVIEWS
-  const FetchAllReviews = async (req, res) => {
-    try {
-      const reviews = await adminService.getPlatformReviews();
-      return res.status(200).json({ success: true, data: reviews });
-    } catch (error) {
-      return res.status(500).json({ success: false, error: error.message });
-    }
-  };
+// FETCH ALL REVIEWS
+const FetchAllReviews = async (req, res) => {
+  try {
+    const reviews = await adminService.getPlatformReviews();
+    return res.status(200).json({ success: true, data: reviews });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
 };
 
 module.exports = {
