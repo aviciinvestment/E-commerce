@@ -3,6 +3,7 @@ const Product = require("../model/Products-schema");
 const Order = require("../model/order-schema");
 const vendorService = require("../services/vendor-service");
 
+const User = require("../model/Users-schema");
 const RegisterVendorStore = async (req, res) => {
   try {
     const {
@@ -71,13 +72,11 @@ const RequestPayout = async (req, res) => {
       vendorId,
       Number(amount),
     );
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Payout request registered cleanly.",
-        data: payoutReceipt,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Payout request registered cleanly.",
+      data: payoutReceipt,
+    });
   } catch (error) {
     return res.status(400).json({ success: false, error: error.message });
   }
