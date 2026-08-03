@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+require("../model/vendors-schema");
 
 // 1. EMBEDDED SUB-DOCUMENT SCHEMA FOR SHIPPING ADDRESSES
 const addressSchema = new mongoose.Schema({
@@ -34,6 +35,13 @@ const UsersSchema = new mongoose.Schema(
       type: String,
       enum: ["customer", "admin", "super-admin"],
       default: "customer",
+    },
+    // ⚡ ADD THESE TWO LINES:
+    isVendor: { type: Boolean, default: false },
+    vendorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vendor",
+      default: null,
     },
     addresses: [addressSchema], // Embedded array matching phase 16 requirements
     isVerified: {
