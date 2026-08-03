@@ -2,13 +2,15 @@ const Users = require("../model/Users-schema");
 const profileService = require("../services/profileService");
 
 // Get Profile Controller Handler
+// Get Profile Controller Handler
 const GetProfile = async (req, res) => {
   try {
     // Extracted securely from your login token verify middleware wrapper!
     const userId = req.user.id || req.user._id;
 
+    // ⚡ FIX 1: Tell MongoDB we also need the isVendor and vendorId fields
     const user = await Users.findById(userId).select(
-      "fullname email role createdAt",
+      "fullname email role createdAt isVendor vendorId",
     );
 
     if (!user) {
@@ -25,6 +27,9 @@ const GetProfile = async (req, res) => {
         email: user.email,
         role: user.role,
         createdAt: user.createdAt,
+        // ⚡ FIX 2: Explicitly pass the vendor fields to the frontend
+        isVendor: user.isVendor,
+        vendorId: user.vendorId,
       },
     });
   } catch (error) {
