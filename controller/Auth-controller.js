@@ -9,7 +9,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const CreateAccount = async (req, res) => {
   try {
-    const { fullname, email, password, role } = req.body;
+    const { fullname, email, password } = req.body;
+    const role = "customer";
 
     // 1. Strict database check: Ensure email isn't already taken
     const existingUser = await Users.findOne({ email });
